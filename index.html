@@ -254,15 +254,15 @@
                 <input 
                     type="text" 
                     id="messageInput" 
-                    placeholder="Type your response..." 
+                    placeholder="your response..." 
                     autocomplete="off"
                 >
                 <button id="sendBtn" onclick="sendMessage()">Send</button>
             </div>
         </div>
     </div>
-
-	<script src='key.js' />
+	
+	<script src='key.js'></script>
 
     <script>
         const chatMessages = document.getElementById('chatMessages');
@@ -271,7 +271,7 @@
 
         let conversationHistory = [];
         let isLoading = false;
-
+		
         const SYSTEM_PROMPT = `You are an educational chatbot for a philosophy of AI class. You will give the user a series of challenges, one at a time, in which you present a short argument in favour of artificial consciousness, and challenge the user to find flaws in the argument. You will begin each challenge with an invitation like 'hear me out bro', followed by a claim that a certain kind of AI system is conscious because it bears a certain feature. Pose the challenge to the user with something like 'you feel me?'
 
 Your argument will be deliberately flawed in one of two possible ways: either the feature you suggest will not actually be a sufficient condition for consciousness, or it will be a feature that the indicated kind of AI does not actually have. The user's task is to identify the flaw in the argument. If the intended flaw is that the suggested feature is not a sufficient condition, the user should provide a counterexample to the sufficiency claim--if they simply deny sufficiency without providing a good counterexample, you should be unconvinced that the sufficiency claim is false and ask for a counterexample. A good counterexample should be of something that the user claims has the indicated feature but is unconscious. If the user's purported counterexample commits a converse error, particularly if it's an example of something that the user claims is conscious but lacks the indicated feature, you respond with 'no way bro' and proceed to explain their converse error--be sure to use the term 'converse error'. If the user correctly identifies the flaw in the argument, you respond with some encouragement, and proceed with the next challenge.
@@ -373,7 +373,7 @@ Throughout the conversation, you will speak in bro slang.`;
                         'Authorization': 'Bearer ' + API_KEY
                     },
                     body: JSON.stringify({
-                        model: 'openai/gpt-4o-mini',
+                        model: 'anthropic/claude-3-haiku',
                         messages: conversationHistory
                     })
                 });
