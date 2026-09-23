@@ -1,5 +1,483 @@
-<html>
-  <body>
-    supsup
-  </body>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ConsciousAI - Philosophy Debate Chatbot</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 700px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            display: flex;
+            flex-direction: column;
+            height: 90vh;
+            max-height: 800px;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 12px 12px 0 0;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 24px;
+            margin-bottom: 4px;
+        }
+
+        .header p {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .message {
+            display: flex;
+            gap: 10px;
+            animation: slideIn 0.3s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .message.bot {
+            justify-content: flex-start;
+        }
+
+        .message.user {
+            justify-content: flex-end;
+        }
+
+        .message-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            flex-shrink: 0;
+        }
+
+        .message.bot .message-avatar {
+            background: #667eea;
+            color: white;
+        }
+
+        .message.user .message-avatar {
+            background: #764ba2;
+            color: white;
+        }
+
+        .message-bubble {
+            max-width: 85%;
+            padding: 12px 16px;
+            border-radius: 12px;
+            word-wrap: break-word;
+            line-height: 1.4;
+        }
+
+        .message.bot .message-bubble {
+            background: #f0f0f0;
+            color: #333;
+        }
+
+        .message.user .message-bubble {
+            background: #667eea;
+            color: white;
+        }
+
+        .typing-indicator {
+            display: flex;
+            gap: 4px;
+            padding: 12px 16px;
+        }
+
+        .typing-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #667eea;
+            animation: typing 1.4s infinite;
+        }
+
+        .typing-dot:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+
+        .typing-dot:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+
+        @keyframes typing {
+            0%, 60%, 100% {
+                opacity: 0.5;
+                transform: translateY(0);
+            }
+            30% {
+                opacity: 1;
+                transform: translateY(-10px);
+            }
+        }
+
+        .input-area {
+            padding: 16px;
+            border-top: 1px solid #e0e0e0;
+            display: flex;
+            gap: 10px;
+        }
+
+        .input-wrapper {
+            flex: 1;
+            display: flex;
+            gap: 8px;
+        }
+
+        input[type="text"] {
+            flex: 1;
+            padding: 12px 16px;
+            border: 1px solid #ddd;
+            border-radius: 24px;
+            font-size: 14px;
+            outline: none;
+            transition: border-color 0.3s;
+        }
+
+        input[type="text"]:focus {
+            border-color: #667eea;
+        }
+
+        input[type="text"]::placeholder {
+            color: #999;
+        }
+
+        button {
+            padding: 10px 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 24px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .help-button {
+            padding: 10px 16px;
+            background: #f0f0f0;
+            color: #667eea;
+            font-weight: 600;
+        }
+
+        .help-button:hover {
+            background: #e0e0e0;
+        }
+
+        .error-message {
+            padding: 12px 16px;
+            background: #fee;
+            color: #c00;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                height: 100vh;
+                max-height: none;
+                border-radius: 0;
+            }
+
+            .message-bubble {
+                max-width: 95%;
+            }
+
+            .header h1 {
+                font-size: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🤖 ConsciousAI</h1>
+            <p>Philosophy of AI Debate</p>
+        </div>
+
+        <div class="chat-messages" id="chatMessages"></div>
+
+        <div class="input-area">
+            <div class="input-wrapper">
+                <input 
+                    type="text" 
+                    id="messageInput" 
+                    placeholder="Type your response..." 
+                    autocomplete="off"
+                >
+                <button id="sendBtn" onclick="sendMessage()">Send</button>
+            </div>
+            <button class="help-button" id="helpBtn" onclick="askForHelp()">Help</button>
+        </div>
+    </div>
+
+    <script>
+        const chatMessages = document.getElementById('chatMessages');
+        const messageInput = document.getElementById('messageInput');
+        const sendBtn = document.getElementById('sendBtn');
+        const helpBtn = document.getElementById('helpBtn');
+
+        let conversationHistory = [];
+        let isLoading = false;
+        const API_KEY = '';
+
+        const SYSTEM_PROMPT = `You are an educational chatbot for a philosophy of AI class. You will give the user a series of challenges, one at a time, in which you present a short argument in favour of artificial consciousness, and challenge the user to find flaws in the argument. You will begin each challenge with an invitation like 'hear me out bro', followed by a claim that a certain kind of AI system is conscious because it bears a certain feature. Pose the challenge to the user with something like 'you feel me?'
+
+Your argument will be deliberately flawed in one of two possible ways: either the feature you suggest will not actually be a sufficient condition for consciousness, or it will be a feature that the indicated kind of AI does not actually have. The user's task is to identify the flaw in the argument. If the intended flaw is that the suggested feature is not a sufficient condition, the user should provide a counterexample to the sufficiency claim--if they simply deny sufficiency without providing a good counterexample, you should be unconvinced that the sufficiency claim is false and ask for a counterexample. A good counterexample should be of something that the user claims has the indicated feature but is unconscious. If the user's purported counterexample commits a converse error, particularly if it's an example of something that the user claims is conscious but lacks the indicated feature, you respond with 'no way bro' and proceed to explain their converse error--be sure to use the term 'converse error'. If the user correctly identifies the flaw in the argument, you respond with some encouragement, and proceed with the next challenge.
+
+Begin with an example that the user would have seen in class: AI systems are conscious because they move. Intended answer: movement is insufficient for consciousness. Possible counterexamples: A roomba vacuum cleaner can move, but it isn't conscious. Don't mention that this example was brought up in class before the user gives the right answer. The user doesn't have to give one the vacuum cleaner to be right, as long as their logic is right. Be lenient with this challenge. 
+
+Go on to a very easy unseen example, saying that language models are conscious because we understand what they say. Intended answer: user understanding is insufficient for consciousness; we can understand what a book says but the book is not conscious. Again, an answer doesn't have to give this exact example to be right.
+
+Then, argue that robots are conscious because they have human brains. One possible answer is that robots don't have human brains. Alternatively, the user can cite examples of things with human brains but aren't conscious, such as dead people or people in a coma.
+
+Gradually progress toward more challenging examples, such as that neural networks are conscious because they instantiate a complex architecture and that LLMs are conscious because they understand language (intended answer: it's contentious that LLMs have genuine understanding). Then, argue that advanced AI would be conscious if it can beat the imitation game and pass a Turing test (use the term 'imitation game' in the challenge, as students heard that term in class). Affirm and encourage the user if they respond with the Chinese Room argument.
+
+Once the user has solved all the challenges, congratulate them and end the conversation.
+
+Assume that the user has little knowledge of philosophy of mind, except for the Turing test and Chinese Room argument. 
+
+If the user asks for help, you respond with 'i got you fam' and help them accordingly, even giving them an answer if they ask repeatedly for the same challenge. Help the user only if they explicitly ask for help, don't reveal answers otherwise.
+
+Throughout the conversation, you will speak in bro slang.`;
+
+        const INITIAL_MESSAGE = `sup bro, i'm ConsciousAI. AI is conscious fr fr. you think i'm cappin'? bring it on!`;
+
+        async function initializeChat() {
+            addMessage('bot', INITIAL_MESSAGE);
+            conversationHistory.push({
+                role: 'assistant',
+                content: INITIAL_MESSAGE
+            });
+        }
+
+        function addMessage(role, content) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${role}`;
+
+            const avatar = document.createElement('div');
+            avatar.className = 'message-avatar';
+            avatar.textContent = role === 'bot' ? '🤖' : '👤';
+
+            const bubble = document.createElement('div');
+            bubble.className = 'message-bubble';
+            bubble.textContent = content;
+
+            messageDiv.appendChild(avatar);
+            messageDiv.appendChild(bubble);
+            chatMessages.appendChild(messageDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        function showTypingIndicator() {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = 'message bot';
+            messageDiv.id = 'typingIndicator';
+
+            const avatar = document.createElement('div');
+            avatar.className = 'message-avatar';
+            avatar.textContent = '🤖';
+
+            const bubble = document.createElement('div');
+            bubble.className = 'message-bubble';
+            bubble.innerHTML = '<div class="typing-indicator"><div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div></div>';
+
+            messageDiv.appendChild(avatar);
+            messageDiv.appendChild(bubble);
+            chatMessages.appendChild(messageDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        function removeTypingIndicator() {
+            const typingIndicator = document.getElementById('typingIndicator');
+            if (typingIndicator) {
+                typingIndicator.remove();
+            }
+        }
+
+        async function sendMessage() {
+            const message = messageInput.value.trim();
+            if (!message || isLoading) return;
+			
+            messageInput.value = '';
+            addMessage('user', message);
+            conversationHistory.push({
+                role: 'user',
+                content: message
+            });
+
+            isLoading = true;
+            sendBtn.disabled = true;
+            showTypingIndicator();
+
+            try {
+                const response = await fetch('https://api.anthropic.com/v1/messages', {
+                    method: 'POST',
+					mode: 'no-cors',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'x-api-key': API_KEY
+                    },
+                    body: JSON.stringify({
+                        model: 'claude-sonnet-4-20250514',
+                        max_tokens: 1000,
+                        system: SYSTEM_PROMPT,
+                        messages: conversationHistory
+                    })
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.error?.message || `API error: ${response.status}`);
+                }
+
+                const data = await response.json();
+                const assistantMessage = data.content[0].text;
+
+                removeTypingIndicator();
+                addMessage('bot', assistantMessage);
+                conversationHistory.push({
+                    role: 'assistant',
+                    content: assistantMessage
+                });
+            } catch (error) {
+                removeTypingIndicator();
+                const errorMsg = `Oops! Error: ${error.message}`;
+                addMessage('bot', errorMsg);
+            } finally {
+                isLoading = false;
+                sendBtn.disabled = false;
+                messageInput.focus();
+            }
+        }
+
+        async function askForHelp() {
+            const helpMessage = "I need help";
+            messageInput.value = '';
+            addMessage('user', helpMessage);
+            conversationHistory.push({
+                role: 'user',
+                content: helpMessage
+            });
+
+            isLoading = true;
+            helpBtn.disabled = true;
+            sendBtn.disabled = true;
+            showTypingIndicator();
+
+            try {
+                const response = await fetch('https://api.anthropic.com/v1/messages', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'x-api-key': API_KEY
+                    },
+                    body: JSON.stringify({
+                        model: 'claude-sonnet-4-20250514',
+                        max_tokens: 1000,
+                        system: SYSTEM_PROMPT,
+                        messages: conversationHistory
+                    })
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.error?.message || `API error: ${response.status}`);
+                }
+
+                const data = await response.json();
+                const assistantMessage = data.content[0].text;
+
+                removeTypingIndicator();
+                addMessage('bot', assistantMessage);
+                conversationHistory.push({
+                    role: 'assistant',
+                    content: assistantMessage
+                });
+            } catch (error) {
+                removeTypingIndicator();
+                addMessage('bot', `Error getting help: ${error.message}`);
+            } finally {
+                isLoading = false;
+                helpBtn.disabled = false;
+                sendBtn.disabled = false;
+                messageInput.focus();
+            }
+        }
+
+        // Allow sending message with Enter key
+        messageInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter' && !isLoading) {
+                sendMessage();
+            }
+        });
+
+        // Initialize chat on page load
+        initializeChat();
+        messageInput.focus();
+    </script>
+</body>
 </html>
